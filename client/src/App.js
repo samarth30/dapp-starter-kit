@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Helloabi from "./contracts/Hello.json";
-import "./App.css";
 import Web3 from "web3";
+import Navbar from "./Navbar";
 
 const App = () => {
   useEffect(() => {
@@ -10,7 +10,7 @@ const App = () => {
 
     //esl
   }, []);
-
+  let content;
   const [loading2, setloading2] = useState(false);
 
   const [account, setAccount] = useState("");
@@ -54,22 +54,24 @@ const App = () => {
     }
   };
 
+  if (loading === true) {
+    content = (
+      <p className="text-center">
+        Loading...{loading2 ? <div>load on mainenet </div> : ""}
+      </p>
+    );
+  } else {
+    content = (
+      <div class="container">
+        <h1>hello</h1>
+      </div>
+    );
+  }
+
   return (
-    <div className="App">
-      {loading ? (
-        <div>
-          loading ....{" "}
-          {loading2 ? (
-            <div>
-              you have set the website on antoher network work on mainenet
-            </div>
-          ) : (
-            ""
-          )}
-        </div>
-      ) : (
-        <div>hello</div>
-      )}
+    <div>
+      <Navbar account={account} />
+      {content}
     </div>
   );
 };
