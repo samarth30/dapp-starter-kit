@@ -2,6 +2,15 @@ import React, { useEffect, useState } from "react";
 import Helloabi from "./contracts/Hello.json";
 import Web3 from "web3";
 import Navbar from "./Navbar";
+import Body from "./Body";
+import Admin from "./Admin";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+  useHistory,
+} from "react-router-dom";
 
 const App = () => {
   const [refresh, setrefresh] = useState(0);
@@ -45,18 +54,18 @@ const App = () => {
       return;
     }
     setAccount(accounts[0]);
-    const networkId = await web3.eth.net.getId();
-    const networkData = Helloabi.abi.networks[networkId];
-    console.log(networkData);
-    if (networkData) {
-      const hello = new web3.eth.Contract(Helloabi.abi, networkData.address);
-      setHello(hello);
+    // const networkId = await web3.eth.net.getId();
+    // const networkData = Helloabi.abi.networks[networkId];
+    // console.log(networkData);
+    // if (networkData) {
+    // const hello = new web3.eth.Contract(Helloabi.abi, networkData.address);
+    // setHello(hello);
 
-      setLoading(false);
-    } else {
-      window.alert("the contract not deployed to detected network.");
-      setloading2(true);
-    }
+    setLoading(false);
+    // } else {
+    //   window.alert("the contract not deployed to detected network.");
+    //   setloading2(true);
+    // }
   };
 
   const onclick = async (a) => {
@@ -102,27 +111,38 @@ const App = () => {
     );
   } else {
     content = (
-      <div class="container">
-        <main role="main" class="container">
-          <div class="jumbotron">
-            <h1>Project</h1>
-            <div className="row" style={{ paddingTop: "30px" }}>
-              {" "}
-              <div className="row" style={{ paddingLeft: "40px" }}>
-                <h3>text 1</h3>
-              </div>
-              <div className="row" style={{ paddingLeft: "40px" }}>
-                <h3>text 2</h3>
-              </div>
-              <div className="row" style={{ paddingLeft: "40px" }}>
-                <h3>text 3</h3>
-              </div>
-              <div className="row" style={{ paddingLeft: "40px" }}>
-                <button className="btn btn-primary">Click on it</button>
-              </div>
-            </div>
-          </div>
-        </main>
+      <div>
+        <Router>
+          <Switch>
+            <Route
+              exact
+              path="/"
+              render={() => (
+                <Fragment>
+                  <Body />
+                </Fragment>
+              )}
+            />
+
+            <Route
+              path="*"
+              render={() => (
+                <Fragment>
+                  <Body />
+                </Fragment>
+              )}
+            />
+
+            <Route
+              path="/admin"
+              render={() => (
+                <Fragment>
+                  <Admin />
+                </Fragment>
+              )}
+            />
+          </Switch>
+        </Router>
       </div>
     );
   }
