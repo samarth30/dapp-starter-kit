@@ -1,6 +1,6 @@
 import React from "react";
 
-export const Body = () => {
+const Body = () => {
   return (
     <div class="container">
       <main role="main" class="container">
@@ -26,3 +26,5 @@ export const Body = () => {
     </div>
   );
 };
+
+export default Body;

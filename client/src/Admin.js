@@ -1,6 +1,6 @@
 import React from "react";
 
-export const Admin = () => {
+const Admin = () => {
   return (
     <div class="container">
       <main role="main" class="container">
@@ -26,3 +26,5 @@ export const Admin = () => {
     </div>
   );
 };
+
+export default Admin;
