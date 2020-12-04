@@ -1,10 +1,14 @@
+import { ethers, Contract } from "ethers";
 import React, { useEffect, useState } from "react";
+import detectEthereumProvider from "@metamask/detect-provider";
 import Helloabi from "./contracts/Hello.json";
 import Web3 from "web3";
 import Navbar from "./Navbar";
+import swal from "sweetalert";
 
 const App = () => {
   const [refresh, setrefresh] = useState(0);
+  const [getNetwork, setNetwork] = useState("");
 
   let content;
   const [loading2, setloading2] = useState(false);
@@ -12,13 +16,12 @@ const App = () => {
   const [account, setAccount] = useState("");
   const [loading, setLoading] = useState(true);
   const [Hello, setHello] = useState({});
-
+  const [SIGNER, SETSIGNER] = useState({});
+  const [flag, setflag] = useState(0);
+  // const provider = await detectEthereumProvider();
   const loadWeb3 = async () => {
     if (window.ethereum) {
-      window.web3 = new Web3(window.ethereum);
       await window.ethereum.enable();
-    } else if (window.web3) {
-      window.web3 = new Web3(window.web3.currentProvider);
     } else {
       window.alert(
         "Non-Ethereum browser detected. You should consider trying MetaMask!"
@@ -28,29 +31,50 @@ const App = () => {
 
   const loadBlockchainData = async () => {
     setLoading(true);
-    if (
-      typeof window.ethereum == "undefined" ||
-      typeof window.web3 == "undefined"
-    ) {
+    if (typeof window.ethereum == "undefined") {
       return;
     }
-    const web3 = window.web3;
+
+    const ethereum = window.ethereum;
+    const provider = new ethers.providers.Web3Provider(ethereum);
+    const signer = provider.getSigner();
+    SETSIGNER(signer);
 
     let url = window.location.href;
     console.log(url);
 
-    const accounts = await web3.eth.getAccounts();
-
+    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+    console.log(accounts);
     if (accounts.length == 0) {
       return;
     }
+
     setAccount(accounts[0]);
-    const networkId = await web3.eth.net.getId();
-    const networkData = Helloabi.abi.networks[networkId];
-    console.log(networkData);
-    if (networkData) {
-      const hello = new web3.eth.Contract(Helloabi.abi, networkData.address);
-      setHello(hello);
+
+    var networkId;
+    await provider.getNetwork().then((result) => {
+      networkId = result.chainId;
+    });
+    if (networkId) {
+      // set network name here
+      setNetwork("Kovan");
+      // defining a smart contract ;
+      // signer is defined above no need to define again
+      // const smartcontract = new Contract( /* address of smart contract*/  , /*  abi of smart contract */, signer);
+      let smartcontract;
+      setHello(smartcontract);
+
+      // if you want to call data from smart contract follow below
+      // suppose there is function in smart contract which returns something
+
+      // await smartcontract
+      //   .functioninsmartcontract(accounts[0].toString())
+      //   .then((result) => {
+      //     console.log("vesting schedule data ", result);
+      //   });
+
+      // suppose there is a call function only or a public variable
+      // await smartcontract.functioninsmartcontract();
 
       setLoading(false);
     } else {
@@ -60,15 +84,16 @@ const App = () => {
   };
 
   const onclick = async (a) => {
-    await Hello.methods
-      .setCompleted(a.toString())
-      .send({ from: account })
-      .once("recepient", (recepient) => {
-        console.log("success");
-      })
-      .on("error", () => {
-        console.log("error");
-      });
+    // if you want to go from eth to wei
+    // use this ethers.utils.parseEther(inputamount.toString())
+    // ethers.utils.formatUnits(unLockedTokens, 18))
+    // try {
+    //   const tx = await smartcontract.setCompleted(a.toString());
+    //   const txsign = await tx.wait();
+    //   window.location.reload();
+    // } catch (e) {
+    //   swal("error in doing transaction you are not admin");
+    // }
   };
 
   const walletAddress = async () => {
@@ -129,18 +154,19 @@ const App = () => {
 
   return (
     <div>
-      <Navbar account={account} />
+      <Navbar account={account} getNetwork={getNetwork} />
 
       {account == "" ? (
         <div className="container">
           {" "}
           Connect your wallet to application{"   "}{" "}
-          <button onClick={walletAddress}>metamask</button>
+          <button onClick={walletAddress} style={{ color: "black" }}>
+            metamask
+          </button>
         </div>
       ) : (
         content
       )}
-      {/* {content} */}
     </div>
   );
 };
